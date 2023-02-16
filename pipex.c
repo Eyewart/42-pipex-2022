@@ -6,7 +6,7 @@
 /*   By: Hassan <hrifi-la@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 17:54:44 by Hassan            #+#    #+#             */
-/*   Updated: 2023/02/16 14:39:04 by Hassan           ###   ########.fr       */
+/*   Updated: 2023/02/16 15:58:35 by Hassan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,11 @@ int	main(int argc, char **argv, char **envp)
 	else
 	{
 		f1 = ft_open(argv[1], INFILE);
+		if (f1 < 0)
+			ft_error();
 		f2 = ft_open(argv[4], OUTFILE);
+		if (f2 < 0)
+			ft_error();
 		dup2(f1, STDIN_FILENO);
 		dup2(f2, STDOUT_FILENO);
 		ft_process(argv[2], envp);
