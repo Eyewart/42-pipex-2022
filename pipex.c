@@ -6,85 +6,108 @@
 /*   By: Hassan <hrifi-la@student.s19.be>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 17:54:44 by Hassan            #+#    #+#             */
-/*   Updated: 2023/02/04 01:10:56 by Hassan           ###   ########.fr       */
+/*   Updated: 2023/02/16 14:39:04 by Hassan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/*
-DESIGN
-file1 cmd1 cmd2 file2
+#include "pipex.h"
 
--arg main() != 5 : ft_exit()
--read infile & store 
--dup2(infile, stdin)
--dup2(outfile, stdout)
--ft_fork (pipe, fork, ..)
- -pipe creation
- -fork()
- -for parent: -close(pipefd[1]), -dup2(pipe_end[1], STDIN), -waitpid()
- -for child: -close(pipefd[0]), -dup2(pipe_end[0], STDOUT)
--ft_exec
- -ft_split for args
- -findPath
- -dup2(pipe_end[0], STDIN_FILEN0)
- -exceve();
--access() function to verify if the cmd exists
-*/
-
- #include "pipex.h"
-
-void	ft_exit(void)
+char	*ft_getpath(char *cmd, char **envp)
 {
-	char	*str;
+	char	*path;
+	char	*bin;
+	char	*dir;
+	int		i;
 
-	str = "Error\n";
-	write(2, str, ft_strlen(str));
-	exit(1);
+	i = 0;
+	while (envp[i] && ft_strncmp(envp[i], "PATH=", 5))
+		i++;
+	if (!envp[i])
+		return (cmd);
+	path = envp[i] + 5;
+	while (path && ft_strichr(path, ':') > -1)
+	{
+		dir = ft_strndup(path, ft_strichr(path, ':'));
+		bin = ft_dirjoin(dir, cmd);
+		free(dir);
+		if (access(bin, F_OK) == 0)
+			return (bin);
+		free(bin);
+		path += ft_strichr(path, ':') + 1;
+	}
+	return (cmd);
 }
 
-int	ft_open()
+void	ft_exec(char *cmd, char **envp)
 {
-	
-}
+	char	*path;
+	char	**args;
 
-void	ft_exec(int fd, char *cmd)
-{
-	
+	args = ft_split(cmd, ' ');
+	path = ft_getpath(args[0], envp);
+	execve(path, args, envp);
+	write(STDERR, "pipex: ", 7);
+	write(STDERR, cmd, ft_strlen(cmd));
+	write(STDERR, ": command not found\n", 20);
+	exit(127);
 }
 
 void	ft_process(char *cmd, char **env)
 {
-	int end[2];
-	pid_t pid;
-	
+	int		end[2];
+	pid_t	pid;
+
 	pipe(end);
 	pid = fork();
 	if (pid)
 	{
-		close(end[1]); 
-		dup(end[0], STDIN_FILENO);
+		close(end[1]);
+		dup2(end[0], STDIN_FILENO);
 		waitpid(pid, NULL, 0);
 	}
 	else
 	{
 		close(end[0]);
-		dup(end[1], STDOUT_FILENO);
+		dup2(end[1], STDOUT_FILENO);
 		ft_exec(cmd, env);
 	}
 }
 
-int main	(int argc, char **argv, char **envp)
+int	ft_open(char *filename, int mode)
 {
-	int		f1;
-	int		f2;
+	if (mode == INFILE)
+	{
+		if (access(filename, F_OK))
+		{
+			write(STDERR, "pipex: ", 7);
+			write(STDERR, "no such file or directory: ", 27);
+			write(STDERR, filename, ft_strlen(filename));
+			exit(1);
+		}
+		return (open(filename, O_RDONLY));
+	}
+	else
+		return (open(filename, O_CREAT | O_RDWR | O_TRUNC, 0644));
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	int	f1;
+	int	f2;
 
 	if (argc != 5)
-		ft_exit;
-	f1 = ft_open(argv[1], O_RDONLY);
-	f2 = ft_open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
-	dup2(f1, STDIN_FILENO);
-	dup2(f2, STDOUT_FILENO);
-	ft_process(argv[2], envp);
-	ft_exec(argv[3], envp);
-	return (0);
+	{
+		write(STDERR, "Invalid number of arguments.\n", 29);
+		exit(1);
+	}
+	else
+	{
+		f1 = ft_open(argv[1], INFILE);
+		f2 = ft_open(argv[4], OUTFILE);
+		dup2(f1, STDIN_FILENO);
+		dup2(f2, STDOUT_FILENO);
+		ft_process(argv[2], envp);
+		ft_exec(argv[3], envp);
+	}
+	return (1);
 }
