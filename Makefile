@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: Hassan <hrifi-la@student.s19.be>           +#+  +:+       +#+         #
+#    By: hrifi-la <hrifi-la@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/29 12:13:47 by Hassan            #+#    #+#              #
-#    Updated: 2023/02/17 11:06:35 by Hassan           ###   ########.fr        #
+#    Updated: 2023/02/17 15:27:00 by hrifi-la         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror
 
 SRCS =	./str_fcts.c \
 		./pipex.c \
