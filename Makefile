@@ -6,13 +6,13 @@
 #    By: Hassan <hrifi-la@student.s19.be>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/29 12:13:47 by Hassan            #+#    #+#              #
-#    Updated: 2023/02/16 16:04:49 by Hassan           ###   ########.fr        #
+#    Updated: 2023/02/17 11:06:35 by Hassan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address
 
 SRCS =	./str_fcts.c \
 		./pipex.c \
